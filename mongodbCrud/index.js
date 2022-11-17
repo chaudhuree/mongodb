@@ -6,10 +6,20 @@ const data = [
   { name: "sohan", age: 28, address: { street: 'dakkhinkhan', city: 'dhaka' } }
 ]
 
+const updateWith = {
+  $set: {
+    note: `it is randomly generated as no update value have been passed`
+  },
+};
+
+const defaultReplacement = {
+  note: `the filtered data is being modified by this random data`,
+};
 // 🔼🔼constants required for this file
 
+//------------------------
 // show all database data
-// ======================
+// -----------------------
 const showAll = async (db, collection) => {
   const dbName = client.db(db).s.namespace.db
   try {
@@ -27,10 +37,9 @@ const showAll = async (db, collection) => {
   }
 }
 
-
+//------------------
 // delete a database
-// =================
-// =================
+//------------------
 const deleteDatabase = async (db = "sohan") => {
   try {
     const database = client.db(db)
@@ -42,19 +51,18 @@ const deleteDatabase = async (db = "sohan") => {
     await client.close();
   }
 }
-
+//-----------------------------------
 // to insert single data in database
-// =================================
-// =================================
-const insertSingle = async (db = 'default', collection = 'test') => {
+//-----------------------------------
+const insertSingle = async (db = 'default', collection = 'test', dataValue = {
+  name: "sohan chaudhuree",
+  age: 27
+}) => {
   const dbName = client.db(db).s.namespace.db
   try {
     const database = client.db(db).collection(collection);
-    const doc = {
-      name: "sohan chaudhuree",
-      age: 27
-    }
-    const result = await database.insertOne(doc);
+
+    const result = await database.insertOne(dataValue);
     console.log(chalk.greenBright.bold(`A document was inserted with the _id: ${result.insertedId} in the database: ${dbName}`));
   } catch (error) {
     console.log(error)
@@ -63,10 +71,9 @@ const insertSingle = async (db = 'default', collection = 'test') => {
     await client.close();
   }
 }
-
+//---------------------
 // insert multiple data
-// ====================
-// ====================
+//---------------------
 
 const insertMultiple = async (db = "multiple", collection = "data", document = data) => {
   const dbName = client.db(db).s.namespace.db
@@ -84,9 +91,9 @@ const insertMultiple = async (db = "multiple", collection = "data", document = d
   }
 }
 
-
+//-----------------
 // find single data
-// ================
+//-----------------
 const findSingleData = async (db, collection, queryData = {}) => {
   try {
     const database = client.db(db).collection(collection);
@@ -101,9 +108,9 @@ const findSingleData = async (db, collection, queryData = {}) => {
     await client.close();
   }
 }
-
+//-------------------
 // find multiple data
-// ==================
+//-------------------
 async function findMultipleData(db, collection, query) {
   const dbName = client.db(db).s.namespace.db
   try {
@@ -120,9 +127,9 @@ async function findMultipleData(db, collection, query) {
     await client.close();
   }
 }
-
+//-----------------------
 // Delete single Document
-// =====================
+//-----------------------
 
 const deleteSingleData = async (db, collection, queryData) => {
   const dbName = client.db(db).s.namespace.db
@@ -141,11 +148,11 @@ const deleteSingleData = async (db, collection, queryData) => {
     await client.close();
   }
 }
-
+//---------------------------
 // Delete multiple Documents
-// ==========================
+//---------------------------
 
-const deleteMultipleData = async (db,collection,query) => {
+const deleteMultipleData = async (db, collection, query) => {
   const dbName = client.db(db).s.namespace.db
   try {
     const database = client.db(db).collection(collection);
@@ -156,6 +163,71 @@ const deleteMultipleData = async (db,collection,query) => {
   }
 }
 
+//-----------------
+// Replace Document
+//-----------------
+
+async function replaceDoc(db,collection,query,replacedData=defaultReplacement) {
+  try {
+    const database = client.db(db);
+    const movies = database.collection(collection);
+
+
+    const result = await movies.replaceOne(query, replacedData);
+    console.log(`Modified ${result.modifiedCount} document(s)`);
+  } finally {
+    await client.close();
+  }
+}
+
+//-----------------------
+// Update Single Document
+//-----------------------
+
+
+async function updateSingleDoc(db, collection, query, updateValue = updateWith) {
+  try {
+    const database = client.db(db).collection(collection);
+    // this option instructs the method to create a document if no documents match the filter
+    const options = { upsert: true };
+    const result = await database.updateOne(query, updateValue, options);
+
+    if (result.matchedCount === 1) {
+      console.log(chalk.greenBright.bold(
+        `${result.matchedCount} document(s) matched the query, updated ${result.modifiedCount} document(s)`,)
+      );
+    } else {
+      console.log(chalk.greenBright.bold(
+        `new data is added as no data match with the query`,)
+      );
+    }
+  } finally {
+    await client.close();
+  }
+}
+
+//-------------------------
+// Update Multiple Document
+//-------------------------
+
+
+async function updateMultipleDocs(db, collection, query, updateValue = updateWith) {
+  try {
+    const database = client.db(db).collection(collection);
+
+    const result = await database.updateMany(query, updateValue);
+
+      console.log(chalk.greenBright.bold(
+        `${result.matchedCount} data is modified`,)
+      );
+    
+  } finally {
+    await client.close();
+  }
+}
+updateMultipleDocs("multiple","data",{age:{$exists:false}},{$set:{note:"age is removed"}})
+
+
 
 // show data
 // showAll()
@@ -164,8 +236,8 @@ const deleteMultipleData = async (db,collection,query) => {
 // deleteDatabase() //insert database name as string
 // deleteDatabase("person")
 
-// insertSingle() //insert database name and collection name in string seperated with comma
-// insertSingle("sdb","scl")
+// insertSingle() //insert database name and collection name in string seperated with comma and also data as object
+// insertSingle("sdb","scl",{name:"chaudhuree"})
 
 
 // insertMultiple() //have to insert db, collection and data as an array
@@ -187,5 +259,11 @@ const deleteMultipleData = async (db,collection,query) => {
 // deleteMultipleData() //have to insert db,collection and query
 // deleteMultipleData('multiple','data',{name:"test"})
 
+// update single document
+// updateSingleDoc() //have to insert db,collection,query and updateData
+// updateSingleDoc('multiple','data',{age:27},{$set:{name:"kabir"}})
 
-module.exports = { showAll, deleteDatabase, insertSingle, insertMultiple, findSingleData, findMultipleData, deleteSingleData }
+
+
+
+module.exports = { showAll, deleteDatabase, insertSingle, insertMultiple, findSingleData, findMultipleData, deleteSingleData, deleteMultipleData,updateSingleDoc,updateMultipleDocs,replaceDoc }
