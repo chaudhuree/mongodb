@@ -142,8 +142,19 @@ const deleteSingleData = async (db, collection, queryData) => {
   }
 }
 
+// Delete multiple Documents
+// ==========================
 
-
+const deleteMultipleData = async (db,collection,query) => {
+  const dbName = client.db(db).s.namespace.db
+  try {
+    const database = client.db(db).collection(collection);
+    const result = await database.deleteMany(query);
+    console.log(chalk.bold.greenBright(`Deleted ${result.deletedCount} documents from the database ${dbName}`));
+  } finally {
+    await client.close();
+  }
+}
 
 
 // show data
@@ -172,6 +183,9 @@ const deleteSingleData = async (db, collection, queryData) => {
 // deleteSingleData() //have to insert db,collection and query
 // deleteSingleData('multiple','data',{age:29})
 
+// delete multiple
+// deleteMultipleData() //have to insert db,collection and query
+// deleteMultipleData('multiple','data',{name:"test"})
 
 
-module.exports = { showAll, deleteDatabase, insertSingle, insertMultiple, findSingleData, findMultipleData,deleteSingleData }
+module.exports = { showAll, deleteDatabase, insertSingle, insertMultiple, findSingleData, findMultipleData, deleteSingleData }
