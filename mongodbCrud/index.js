@@ -5,6 +5,29 @@ const data = [
   { name: "kabir", age: 27, address: { street: 'puratun bazar', city: 'parbatipur' } },
   { name: "sohan", age: 28, address: { street: 'dakkhinkhan', city: 'dhaka' } }
 ]
+
+// 🔼🔼constants required for this file
+
+// show all database data
+// ======================
+const showAll = async (db, collection) => {
+  const dbName = client.db(db).s.namespace.db
+  try {
+    const database = client.db(db).collection(collection);
+    console.log(chalk.greenBright.bold(`data: from the database ${dbName}`));
+    await database.find({}).forEach(element => {
+
+      console.log(element)
+    });
+  } catch (error) {
+    console.log(error)
+  }
+  finally {
+    await client.close();
+  }
+}
+
+
 // delete a database
 // =================
 // =================
@@ -24,6 +47,7 @@ const deleteDatabase = async (db = "sohan") => {
 // =================================
 // =================================
 const insertSingle = async (db = 'default', collection = 'test') => {
+  const dbName = client.db(db).s.namespace.db
   try {
     const database = client.db(db).collection(collection);
     const doc = {
@@ -31,7 +55,7 @@ const insertSingle = async (db = 'default', collection = 'test') => {
       age: 27
     }
     const result = await database.insertOne(doc);
-    console.log(chalk.greenBright.bold(`A document was inserted with the _id: ${result.insertedId} in the database: ${client.db(db).s.namespace.db}`));
+    console.log(chalk.greenBright.bold(`A document was inserted with the _id: ${result.insertedId} in the database: ${dbName}`));
   } catch (error) {
     console.log(error)
   }
@@ -45,12 +69,13 @@ const insertSingle = async (db = 'default', collection = 'test') => {
 // ====================
 
 const insertMultiple = async (db = "multiple", collection = "data", document = data) => {
+  const dbName = client.db(db).s.namespace.db
   try {
     const database = client.db(db).collection(collection);
     const docs = document;
 
     const result = await database.insertMany(docs);
-    console.log(chalk.greenBright.bold(`${result.insertedCount} documents were inserted in the database ${client.db(db).s.namespace.db}`));
+    console.log(chalk.greenBright.bold(`${result.insertedCount} documents were inserted in the database ${dbName}`));
   } catch (error) {
     console.log(error)
   }
@@ -77,14 +102,32 @@ const findSingleData = async (db, collection, queryData = {}) => {
   }
 }
 
+// find multiple data
+// ==================
+async function findMultipleData(db, collection, query) {
+  const dbName = client.db(db).s.namespace.db
+  try {
+    const database = client.db(db).collection(collection);
+
+    const data = database.find(query);
+
+    if ((await data.countDocuments) === 0) {
+      console.log("No documents found!");
+    }
+    console.log(chalk.greenBright.bold(`data: from the database ${dbName}`));
+    await data.forEach(element => console.log(element));
+  } finally {
+    await client.close();
+  }
+}
 
 
 
 
 
-
-
-
+// show data
+// showAll()
+// showAll('multiple',"data")
 
 // deleteDatabase() //insert database name as string
 // deleteDatabase("person")
@@ -93,9 +136,19 @@ const findSingleData = async (db, collection, queryData = {}) => {
 // insertSingle("sdb","scl")
 
 
-// insertMultiple()
+// insertMultiple() //have to insert db, collection and data as an array
 // insertMultiple("mdb","mcl",[{name:'sohan'},{age:27}])
 
 // find single data
-// findSingleData()
+// findSingleData() //have to insert db, collection and query
 // findSingleData('multiple','data',{name:"kabir"})
+
+// find multiple data
+// findMultipleData() //have to insert db,collection and query
+// findMultipleData('multiple','data',{name:"sohan"})
+
+
+
+
+
+module.exports = { showAll,deleteDatabase, insertSingle, insertMultiple, findSingleData,findMultipleData }
