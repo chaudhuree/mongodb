@@ -121,6 +121,27 @@ async function findMultipleData(db, collection, query) {
   }
 }
 
+// Delete single Document
+// =====================
+
+const deleteSingleData = async (db, collection, queryData) => {
+  const dbName = client.db(db).s.namespace.db
+  try {
+    const database = client.db(db).collection(collection);
+
+    const result = await database.deleteOne(queryData);
+    if (result.deletedCount === 1) {
+      console.log(chalk.greenBright.bold(`one data has been deleted form the database ${dbName}`));
+    } else {
+      console.log("No documents matched the query. Deleted 0 documents.");
+    }
+  } catch (error) {
+    console.log(chalk.red.bold(error))
+  } finally {
+    await client.close();
+  }
+}
+
 
 
 
@@ -147,8 +168,10 @@ async function findMultipleData(db, collection, query) {
 // findMultipleData() //have to insert db,collection and query
 // findMultipleData('multiple','data',{name:"sohan"})
 
+// delete single data
+// deleteSingleData() //have to insert db,collection and query
+// deleteSingleData('multiple','data',{age:29})
 
 
 
-
-module.exports = { showAll,deleteDatabase, insertSingle, insertMultiple, findSingleData,findMultipleData }
+module.exports = { showAll, deleteDatabase, insertSingle, insertMultiple, findSingleData, findMultipleData,deleteSingleData }
