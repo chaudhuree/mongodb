@@ -18,6 +18,18 @@ const defaultReplacement = {
 var allData=[]
 
 // 🔼🔼constants required for this file
+//-----------------
+// Create Database
+//-----------------
+
+const createDatabase=async (db,collection) => {
+ const database = client.db(db)
+ database.createCollection(collection)
+ console.log(chalk.greenBright.bold.underline(`database is creater with database name: ${db} and collection name: ${collection}`));
+ 
+}
+
+
 
 //------------------------
 // show all database data
@@ -280,4 +292,4 @@ async function updateMultipleDocs(db, collection, query, updateValue = updateWit
 
 
 
-module.exports = { showAll, deleteDatabase, insertSingle, insertMultiple, findSingleData, findMultipleData, deleteSingleData, deleteMultipleData, updateSingleDoc, updateMultipleDocs, replaceDoc }
+module.exports = { createDatabase,showAll, deleteDatabase, insertSingle, insertMultiple, findSingleData, findMultipleData, deleteSingleData, deleteMultipleData, updateSingleDoc, updateMultipleDocs, replaceDoc }
